@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kado Ulang Tahun Alfina</title>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f0e6f6;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+    #giftBox {
+      width: 200px;
+      height: 200px;
+      background: url('https://img.icons8.com/color/96/000000/gift.png') no-repeat center;
+      background-size: contain;
+      cursor: pointer;
+      transition: transform 0.5s;
+    }
+    #giftBox.open {
+      transform: scale(0);
+      opacity: 0;
+    }
+    #message {
+      display: none;
+      position: absolute;
+      text-align: center;
+      color: #ff69b4;
+      font-size: 48px;
+      font-weight: bold;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+      animation: blink 1s infinite;
+    }
+    #message.show {
+      display: block;
+    }
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: -1;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+  </style>
+</head>
+<body>
+  <div id="giftBox"></div>
+  <div id="message">Happy Birthday<br>Alfina Hartanti<br>yang ke-20 tahun</div>
+  <canvas id="particleCanvas"></canvas>
+  <script>
+    const giftBox = document.getElementById('giftBox');
+    const message = document.getElementById('message');
+    const canvas = document.getElementById('particleCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Set canvas size
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // Particle array
+    let particles = [];
+    const numParticles = 100;
+
+    // Particle class
+    class Particle {
+      constructor() {
+        this.x = canvas.width / 2;
+        this.y = canvas.height / 2;
+        this.size = Math.random() * 5 + 2;
+        this.speedX = Math.random() * 4 - 2;
+        this.speedY = Math.random() * 4 - 2;
+        this.alpha = 1;
+        this.color = `hsl(${Math.random() * 360}, 70%, 50%)`;
+      }
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        this.alpha -= 0.02;
+        this.size *= 0.98;
+      }
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.globalAlpha = this.alpha;
+        ctx.fill();
+      }
+    }
+
+    // Handle gift box click
+    let isOpen = false;
+    giftBox.addEventListener('click', () => {
+      if (!isOpen) {
+        isOpen = true;
+        giftBox.classList.add('open');
+        message.classList.add('show');
+        // Create initial burst of particles
+        for (let i = 0; i < numParticles; i++) {
+          particles.push(new Particle());
+        }
+      }
+    });
+
+    // Animation loop
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // Update and draw particles
+      particles = particles.filter(p => p.alpha > 0 && p.size > 0.1);
+      particles.forEach(p => {
+        p.update();
+        p.draw();
+      });
+      // Add new particles if gift is open
+      if (isOpen && particles.length < numParticles) {
+        particles.push(new Particle());
+      }
+      ctx.globalAlpha = 1; // Reset alpha
+      requestAnimationFrame(animate);
+    }
+
+    // Start animation
+    animate();
+
+    // Resize canvas on window resize
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+  </script>
+</body>
+</html>
